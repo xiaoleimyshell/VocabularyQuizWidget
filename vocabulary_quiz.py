@@ -68,7 +68,8 @@ class VocabularyQuizWidget(BaseWidget):
         )
         quiz_id: str | None = Field(
             default=None,
-            type="string", # Keep type for API generator
+            type="string",
+            required=False, # Explicitly mark as not required
             description="考试ID，如果提供则使用之前的测验会话，否则创建新会话"
         )
         questions: Union[str, List[Dict[str, Union[str, List[str], int]]]] = Field(
@@ -88,17 +89,20 @@ class VocabularyQuizWidget(BaseWidget):
         )
         answer: str | int | None = Field(
              default=None,
-             type="string", # Keep type for API generator
+             type="string",
+             required=False, # Explicitly mark as not required
              description="用户的答案，可以是选项序号(0-3)或选项字母(A-D)，用于submit_answer操作"
          )
         selected_index: str | None = Field(
             default=None,
-            type="string", # Keep type for API generator
+            type="string",
+            required=False, # Explicitly mark as not required
             description="用户选择的选项，传入'选项A'、'选项B'、'选项C'或'选项D'，分别对应索引0、1、2、3"
         )
         question_index: int | None = Field(
             default=None,
-            type="integer", # Keep type for API generator
+            type="integer",
+            required=False, # Explicitly mark as not required
             description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
         
