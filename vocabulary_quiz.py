@@ -102,7 +102,7 @@ class VocabularyQuizWidget(BaseWidget):
             description="用户选择的选项，传入'选项A'、'选项B'、'选项C'或'选项D'，分别对应索引0、1、2、3"
         )
         
-        @validator('batch_index', 'question_index', pre=True, allow_reuse=True)
+        @validator('question_index', pre=True)
         def handle_empty_string(cls, v):
             """处理空字符串，转换为None"""
             if v == '':
