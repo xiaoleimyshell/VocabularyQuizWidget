@@ -66,9 +66,9 @@ class VocabularyQuizWidget(BaseWidget):
             default="get_batch",
             description="操作类型：prepare（准备题目）, start_quiz（开始测验）, get_next_batch（获取下一批单词）, get_next_question（获取下一个问题）, submit_answer（提交答案）, end_quiz（结束测验）"
         )
-        quiz_id: Optional[str] = Field(
-            type="string",
+        quiz_id: str | None = Field(
             default=None,
+            type="string", # Keep type for API generator
             description="考试ID，如果提供则使用之前的测验会话，否则创建新会话"
         )
         questions: Union[str, List[Dict[str, Union[str, List[str], int]]]] = Field(
@@ -86,19 +86,19 @@ class VocabularyQuizWidget(BaseWidget):
             default=15,
             description="每批返回的题目数量"
         )
-        answer: Optional[Union[str, int]] = Field(
-            type="string",
+        answer: str | int | None = Field(
+             default=None,
+             type="string", # Keep type for API generator
+             description="用户的答案，可以是选项序号(0-3)或选项字母(A-D)，用于submit_answer操作"
+         )
+        selected_index: str | None = Field(
             default=None,
-            description="用户的答案，可以是选项序号(0-3)或选项字母(A-D)，用于submit_answer操作"
-        )
-        selected_index: Optional[str] = Field(
-            type="string",
-            default=None,
+            type="string", # Keep type for API generator
             description="用户选择的选项，传入'选项A'、'选项B'、'选项C'或'选项D'，分别对应索引0、1、2、3"
         )
-        question_index: Optional[int] = Field(
-            type="integer",
+        question_index: int | None = Field(
             default=None,
+            type="integer", # Keep type for API generator
             description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
         
