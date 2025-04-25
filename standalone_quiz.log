@@ -1,0 +1,18 @@
+2025-04-24 18:21:04,205 - standalone_quiz - INFO - 初始化测验，共 5 个问题
+2025-04-24 18:21:40,471 - standalone_quiz - WARNING - 无法将选项 'E' 转换为索引
+2025-04-24 18:21:40,472 - standalone_quiz - WARNING - 数字字符串超出范围: 5
+2025-04-24 18:21:40,472 - standalone_quiz - WARNING - 数字索引超出范围: -1
+2025-04-24 18:21:40,473 - standalone_quiz - WARNING - 数字索引超出范围: 4
+2025-04-24 18:21:40,473 - standalone_quiz - WARNING - 无法将选项 '选项E' 转换为索引
+2025-04-24 18:21:40,473 - standalone_quiz - WARNING - 数字字符串超出范围: 5
+2025-04-24 18:21:40,473 - standalone_quiz - WARNING - 无法将选项 '' 转换为索引
+2025-04-24 18:21:40,473 - standalone_quiz - WARNING - 无法将选项 '   ' 转换为索引
+2025-04-24 18:21:58,346 - standalone_quiz - INFO - 初始化测验，共 5 个问题
+2025-04-24 18:22:12,265 - standalone_quiz - WARNING - 无法将选项 'E' 转换为索引
+2025-04-24 18:22:12,266 - standalone_quiz - WARNING - 数字字符串超出范围: 5
+2025-04-24 18:22:12,266 - standalone_quiz - WARNING - 数字索引超出范围: -1
+2025-04-24 18:22:12,266 - standalone_quiz - WARNING - 数字索引超出范围: 4
+2025-04-24 18:22:12,266 - standalone_quiz - WARNING - 无法将选项 '选项E' 转换为索引
+2025-04-24 18:22:12,266 - standalone_quiz - WARNING - 数字字符串超出范围: 5
+2025-04-24 18:22:12,266 - standalone_quiz - WARNING - 无法将选项 '' 转换为索引
+2025-04-24 18:22:12,266 - standalone_quiz - WARNING - 无法将选项 '   ' 转换为索引

@@ -1,0 +1,50 @@
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 开始测试选项转换功能
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 1: 输入='A' → 输出=0 → 预期=0 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 2: 输入='B' → 输出=1 → 预期=1 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 3: 输入='C' → 输出=2 → 预期=2 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 4: 输入='D' → 输出=3 → 预期=3 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 5: 输入='a' → 输出=0 → 预期=0 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 6: 输入='b' → 输出=1 → 预期=1 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 7: 输入='c' → 输出=2 → 预期=2 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 8: 输入='d' → 输出=3 → 预期=3 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 9: 输入=' A ' → 输出=0 → 预期=0 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 10: 输入=' B ' → 输出=1 → 预期=1 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 11: 输入='选项A' → 输出=0 → 预期=0 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 12: 输入='选项B' → 输出=1 → 预期=1 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 13: 输入='选项C' → 输出=2 → 预期=2 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 14: 输入='选项D' → 输出=3 → 预期=3 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 15: 输入='0' → 输出=0 → 预期=0 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 16: 输入='1' → 输出=1 → 预期=1 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 17: 输入='2' → 输出=2 → 预期=2 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 18: 输入='3' → 输出=3 → 预期=3 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 19: 输入='0' → 输出=0 → 预期=0 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 20: 输入='1' → 输出=1 → 预期=1 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 21: 输入='2' → 输出=2 → 预期=2 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 22: 输入='3' → 输出=3 → 预期=3 → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - WARNING - 无法将选项 'E' 转换为索引
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 23: 输入='E' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - WARNING - 无法将选项 '选项E' 转换为索引
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 24: 输入='选项E' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - WARNING - 数字字符串超出范围: 4
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 25: 输入='4' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - WARNING - 数字索引超出范围: 4
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 26: 输入='4' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - WARNING - 无法将选项 'abc' 转换为索引
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 27: 输入='abc' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - WARNING - 无法将选项 '' 转换为索引
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 28: 输入='' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 29: 输入='None' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - WARNING - 无法将选项 '选择A' 转换为索引
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 测试 30: 输入='选择A' → 输出=None → 预期=None → ✓
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 选项转换测试完成
+2025-04-24 18:17:49,238 - test_option_parsing - INFO - 开始测试答案检查功能
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 1: 输入='C' → 索引=2 → 正确=True → 预期=True → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 2: 输入='A' → 索引=0 → 正确=False → 预期=False → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 3: 输入='选项C' → 索引=2 → 正确=True → 预期=True → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 4: 输入='选项B' → 索引=1 → 正确=False → 预期=False → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 5: 输入='2' → 索引=2 → 正确=True → 预期=True → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 6: 输入='1' → 索引=1 → 正确=False → 预期=False → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 7: 输入='2' → 索引=2 → 正确=True → 预期=True → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案测试 8: 输入='0' → 索引=0 → 正确=False → 预期=False → ✓
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 答案检查测试完成
+2025-04-24 18:17:49,239 - test_option_parsing - INFO - 所有测试完成

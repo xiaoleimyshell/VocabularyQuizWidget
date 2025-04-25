@@ -1,0 +1,5 @@
+    def _update_session_state(self, quiz_id, config=None, update_data=None):
+        """统一管理和更新会话状态"""
+        # 从附加文件中复制_update_session_state方法
+        from attachment import update_session_state
+        return update_session_state(self, quiz_id, config, update_data)
