@@ -5125,3 +5125,4 @@ ValueError: "InputsSchema" object has no field "batch_index"
 2025-04-25 20:15:40,069 - VocabularyQuizIndex - INFO - 返回结果: status=answer_recorded, is_correct=False, score=33.33%
 2025-04-25 20:15:40,069 - VocabularyQuizIndex - INFO - ==================== 提交答案结束 ====================
 2025-04-25 20:56:05,291 - VocabularyQuizIndex - INFO - ============== 索引问题专用日志初始化 ==============
+2025-04-25 20:59:25,311 - VocabularyQuizIndex - INFO - ============== 索引问题专用日志初始化 ==============

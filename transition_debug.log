@@ -5252,3 +5252,4 @@
 2025-04-25 20:15:40,317 - 会话中的批次信息: total_questions=6, total_batches=2, current_batch_index=1
 2025-04-25 20:15:40,317 - 设置transition_to=quiz_completed: 所有题目都已回答完成, quiz_id=2aedc8bd-0b0d-4379-89e3-9d1a4f00c358
 2025-04-25 20:56:05,292 - ============== Transition问题专用日志初始化 ==============
+2025-04-25 20:59:25,311 - ============== Transition问题专用日志初始化 ==============
