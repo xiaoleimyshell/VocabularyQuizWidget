@@ -66,7 +66,8 @@ class VocabularyQuizWidget(BaseWidget):
             default="get_batch",
             description="操作类型：prepare（准备题目）, start_quiz（开始测验）, get_next_batch（获取下一批单词）, get_next_question（获取下一个问题）, submit_answer（提交答案）, end_quiz（结束测验）"
         )
-        quiz_id: str = Field(
+        quiz_id: str | None = Field( # Use | None
+            default="", # Provide non-None default
             type="string",
             description="考试ID，如果提供则使用之前的测验会话，否则创建新会话"
         )
@@ -85,15 +86,18 @@ class VocabularyQuizWidget(BaseWidget):
             default=15,
             description="每批返回的题目数量"
         )
-        answer: Union[str, int] = Field(
+        answer: Union[str, int, None] = Field( # Use | None (keeping Union for int)
+             default="", # Provide non-None default (validator handles conversion)
              type="string",
              description="用户的答案，可以是选项序号(0-3)或选项字母(A-D)，用于submit_answer操作"
          )
-        selected_index: str = Field(
+        selected_index: str | None = Field( # Use | None
+            default="", # Provide non-None default
             type="string",
             description="用户选择的选项，传入'选项A'、'选项B'、'选项C'或'选项D'，分别对应索引0、1、2、3"
         )
-        question_index: int = Field(
+        question_index: int | None = Field( # Use | None
+            default=-1, # Provide non-None default (-1 indicates missing)
             type="integer",
             description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
@@ -321,28 +325,32 @@ class VocabularyQuizWidget(BaseWidget):
     def execute(self, environ, config):
         """执行小部件的主要入口方法"""
         try:
-            # 安全地获取可能缺失的输入字段 (Workaround for 422 error)
-            quiz_id = getattr(config, 'quiz_id', None)
-            answer = getattr(config, 'answer', None)
-            selected_index = getattr(config, 'selected_index', None)
-            question_index = getattr(config, 'question_index', None)
+            # --- Workaround for 422 error based on documentation --- 
+            # 获取字段值，这些值现在总会存在（因为有默认值）
+            raw_quiz_id = config.quiz_id
+            raw_answer = config.answer
+            raw_selected_index = config.selected_index
+            raw_question_index = config.question_index
+
+            # 检查是否为我们设置的"伪"默认值，如果是，则视为 None
+            quiz_id = raw_quiz_id if raw_quiz_id != "" else None
+            # answer 由 validator 处理，但如果传入空字符串，也应视为 None 
+            answer = raw_answer if raw_answer != "" else None 
+            selected_index = raw_selected_index if raw_selected_index != "" else None
+            question_index = raw_question_index if raw_question_index != -1 else None
             
-            # 获取必需字段
+            # 获取其他字段
             operation = config.operation
             batch_size = config.batch_size
-            
-            # 获取有默认值的字段
-            questions_input = getattr(config, 'questions', "[]")
-            word_list_input = getattr(config, 'word_list', "")
+            questions_input = config.questions # 这个有 default="[]"
+            word_list_input = config.word_list # 这个有 default=""
 
             logger.info(f"执行操作开始 - 操作类型: {operation}")
-            logger.info(f"安全获取的输入: quiz_id={quiz_id}, answer={answer}, selected_index={selected_index}, question_index={question_index}")
+            logger.info(f"原始输入: quiz_id='{raw_quiz_id}', answer='{raw_answer}', selected_index='{raw_selected_index}', question_index={raw_question_index}")
+            logger.info(f"处理后输入: quiz_id={quiz_id}, answer={answer}, selected_index={selected_index}, question_index={question_index}")
             logger.info(f"其他输入: batch_size={batch_size}")
-            
-            # --- 注意：后续代码需要使用这些安全获取的变量 (quiz_id, answer, etc.) --- 
-            # --- 而不是直接使用 config.quiz_id, config.answer 等 --- 
 
-            # 重新构建一个包含安全获取值的配置对象或字典，传递给内部方法
+            # 重新构建一个包含处理后值的配置对象或字典
             safe_config_dict = {
                 'quiz_id': quiz_id,
                 'answer': answer,
@@ -350,10 +358,9 @@ class VocabularyQuizWidget(BaseWidget):
                 'question_index': question_index,
                 'operation': operation,
                 'batch_size': batch_size,
-                'questions': questions_input, # 确保内部方法能正确处理字符串或列表
-                'word_list': word_list_input # 确保内部方法能正确处理字符串或列表
+                'questions': questions_input,
+                'word_list': word_list_input
             }
-            # 为了方便后续方法调用，可以将其转换回类似 config 的对象
             from types import SimpleNamespace
             safe_config = SimpleNamespace(**safe_config_dict)
 
