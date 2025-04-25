@@ -94,25 +94,15 @@ class VocabularyQuizWidget(BaseWidget):
         question_index: Optional[int] = Field(
             type="integer",
             default=None,
-            description="考试ID，如果提供则使用之前乱序的题目列表，否则重新乱序"
-        )
-        operation: str = Field(
-            type="string",
-            default="get_batch",
-            description="操作类型：prepare（准备阶段）, start_quiz（开始测验）, get_next_batch（获取下一批单词）, get_next_question（获取下一个问题）, submit_answer（提交答案）, end_quiz（结束测验）"
+            description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
         selected_index: Optional[str] = Field(
             type="string",
             default=None,
             description="用户选择的选项，传入'选项A'、'选项B'、'选项C'或'选项D'，分别对应索引0、1、2、3"
         )
-        question_index: Optional[int] = Field(
-            type="integer",
-            default=None,
-            description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
-        )
         
-        @validator('batch_index', 'question_index', pre=True, check_fields=False)
+        @validator('batch_index', 'question_index', pre=True, allow_reuse=True)
         def handle_empty_string(cls, v):
             """处理空字符串，转换为None"""
             if v == '':
