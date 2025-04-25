@@ -67,7 +67,6 @@ class VocabularyQuizWidget(BaseWidget):
             description="操作类型：prepare（准备题目）, start_quiz（开始测验）, get_next_batch（获取下一批单词）, get_next_question（获取下一个问题）, submit_answer（提交答案）, end_quiz（结束测验）"
         )
         quiz_id: str = Field(
-            default=None,
             type="string",
             description="考试ID，如果提供则使用之前的测验会话，否则创建新会话"
         )
@@ -87,17 +86,14 @@ class VocabularyQuizWidget(BaseWidget):
             description="每批返回的题目数量"
         )
         answer: Union[str, int] = Field(
-             default=None,
              type="string",
              description="用户的答案，可以是选项序号(0-3)或选项字母(A-D)，用于submit_answer操作"
          )
         selected_index: str = Field(
-            default=None,
             type="string",
             description="用户选择的选项，传入'选项A'、'选项B'、'选项C'或'选项D'，分别对应索引0、1、2、3"
         )
         question_index: int = Field(
-            default=None,
             type="integer",
             description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
@@ -325,67 +321,59 @@ class VocabularyQuizWidget(BaseWidget):
     def execute(self, environ, config):
         """执行小部件的主要入口方法"""
         try:
-            # 获取操作类型，operation会被验证器处理，已包含兼容性逻辑
+            # 安全地获取可能缺失的输入字段 (Workaround for 422 error)
+            quiz_id = getattr(config, 'quiz_id', None)
+            answer = getattr(config, 'answer', None)
+            selected_index = getattr(config, 'selected_index', None)
+            question_index = getattr(config, 'question_index', None)
+            
+            # 获取必需字段
             operation = config.operation
+            batch_size = config.batch_size
             
+            # 获取有默认值的字段
+            questions_input = getattr(config, 'questions', "[]")
+            word_list_input = getattr(config, 'word_list', "")
+
             logger.info(f"执行操作开始 - 操作类型: {operation}")
-            logger.info(f"输入参数: quiz_id={config.quiz_id}, batch_size={config.batch_size}")
+            logger.info(f"安全获取的输入: quiz_id={quiz_id}, answer={answer}, selected_index={selected_index}, question_index={question_index}")
+            logger.info(f"其他输入: batch_size={batch_size}")
             
-            # 记录questions数量和内容
-            if hasattr(config, 'questions'):
-                # 确保questions已经是列表类型
-                if isinstance(config.questions, str):
-                    try:
-                        if config.questions.strip():
-                            logger.info("questions是字符串类型，尝试解析为JSON")
-                            # 确保处理JSON时不会出现Unicode编码问题
-                            # 保留原始的JSON字符串以便可能需要的调试
-                            logger.info(f"原始JSON字符串: {config.questions[:200]}...")
-                            parsed_questions = json.loads(config.questions)
-                            # 记录解析后的数据结构
-                            logger.info(f"成功解析为JSON，数据类型: {type(parsed_questions)}")
-                            if isinstance(parsed_questions, list):
-                                logger.info(f"解析后的列表长度: {len(parsed_questions)}")
-                                if len(parsed_questions) > 0:
-                                    logger.info(f"第一个题目样例: {json.dumps(parsed_questions[0], ensure_ascii=False)}")
-                            config.questions = parsed_questions
-                        else:
-                            config.questions = []
-                    except Exception as e:
-                        logger.error(f"解析questions字符串失败: {str(e)}")
-                        logger.error(traceback.format_exc())
-                        config.questions = []
-                
-                logger.info(f"题目数量: {len(config.questions)}")
-                
-                # 记录前5个题目的内容作为示例
-                if len(config.questions) > 0:
-                    sample_questions = config.questions[:min(5, len(config.questions))]
-                    for i, q in enumerate(sample_questions):
-                        logger.info(f"题目示例{i+1}: {json.dumps(q, ensure_ascii=False)}")
-            
-            # 处理prepare操作
+            # --- 注意：后续代码需要使用这些安全获取的变量 (quiz_id, answer, etc.) --- 
+            # --- 而不是直接使用 config.quiz_id, config.answer 等 --- 
+
+            # 重新构建一个包含安全获取值的配置对象或字典，传递给内部方法
+            safe_config_dict = {
+                'quiz_id': quiz_id,
+                'answer': answer,
+                'selected_index': selected_index,
+                'question_index': question_index,
+                'operation': operation,
+                'batch_size': batch_size,
+                'questions': questions_input, # 确保内部方法能正确处理字符串或列表
+                'word_list': word_list_input # 确保内部方法能正确处理字符串或列表
+            }
+            # 为了方便后续方法调用，可以将其转换回类似 config 的对象
+            from types import SimpleNamespace
+            safe_config = SimpleNamespace(**safe_config_dict)
+
+            # --- 使用 safe_config 调用内部方法 --- 
             if operation == "prepare":
                 logger.info("执行prepare操作")
-                result = self._prepare(config)
-            # 处理start_quiz操作
+                result = self._prepare(safe_config) # 使用 safe_config
             elif operation == "start_quiz":
                 logger.info("执行start_quiz操作")
-                result = self._start_quiz(config)
-            # 处理get_next_batch操作
-            elif operation == "get_next_batch" or operation == "get_batch":  # 兼容旧版本操作名
+                result = self._start_quiz(safe_config) # 使用 safe_config
+            elif operation == "get_next_batch" or operation == "get_batch":
                 logger.info("执行get_next_batch操作")
-                result = self._get_next_batch(config)
-            # 处理get_next_question操作
+                result = self._get_next_batch(safe_config) # 使用 safe_config
             elif operation == "get_next_question":
                 logger.info("执行get_next_question操作")
-                result = self._get_next_question(config)
-            # 处理submit_answer操作
+                result = self._get_next_question(safe_config) # 使用 safe_config
             elif operation == "submit_answer":
                 logger.info(f"执行submit_answer操作")
-                
                 # 记录所有配置参数
-                log_params = {k: v for k, v in vars(config).items() if k != 'questions'}
+                log_params = {k: v for k, v in safe_config_dict.items() if k != 'questions'}
                 try:
                     logger.info(f"submit_answer完整参数: {json.dumps(log_params, ensure_ascii=False)}")
                 except TypeError:
@@ -399,18 +387,14 @@ class VocabularyQuizWidget(BaseWidget):
                             simple_log_params[k] = str(v)
                     logger.info(f"submit_answer完整参数(简化版): {json.dumps(simple_log_params, ensure_ascii=False)}")
                 
-                result = self._submit_answer(config)
-                
-                # 记录返回结果的摘要
-                logger.info(f"submit_answer操作完成，返回结果状态: {result.get('status')}")
-            # 处理end_quiz操作
+                result = self._submit_answer(safe_config) # 使用 safe_config
             elif operation == "end_quiz":
                 logger.info("执行end_quiz操作")
-                result = self._end_quiz(config)
+                result = self._end_quiz(safe_config) # 使用 safe_config
             else:
-                logger.error(f"不支持的操作类型: {operation}")
+                # ... (error handling, use quiz_id if available)
                 result = {
-                    "quiz_id": getattr(config, "quiz_id", str(uuid.uuid4())),
+                    "quiz_id": quiz_id or str(uuid.uuid4()), # 使用安全获取的 quiz_id
                     "status": "error",
                     "message": f"不支持的操作: {operation}",
                     "words": None,
@@ -424,8 +408,8 @@ class VocabularyQuizWidget(BaseWidget):
                     "formatted_question": f"错误：不支持的操作: {operation}"
                 }
             
-            # 记录除questions外的所有参数（太长了）
-            log_params = {k: v for k, v in vars(config).items() if k != 'questions'}
+            # 记录除questions外的所有参数
+            log_params = {k: v for k, v in safe_config_dict.items() if k != 'questions'}
             logger.debug(f"输入参数详情: {log_params}")
             
             # 确保所有必要的输出字段都存在
@@ -439,19 +423,18 @@ class VocabularyQuizWidget(BaseWidget):
                 else:
                     result["wrong_answers"] = []
             
-            # 记录结果状态（不记录完整结果，可能太大）
             logger.info(f"执行结果: status={result.get('status')}, message={result.get('message')}")
             
-            # 在每次操作后保存会话数据
             self.__class__.dump_sessions()
             
             return result
         except Exception as e:
             logger.error(f"执行过程中发生异常: {str(e)}")
             logger.error(traceback.format_exc())
-            # 返回带有所有必要字段的错误结果
+            # 获取可能的 quiz_id 以用于错误返回
+            error_quiz_id = getattr(config, 'quiz_id', str(uuid.uuid4())) 
             return {
-                "quiz_id": getattr(config, "quiz_id", str(uuid.uuid4())),
+                "quiz_id": error_quiz_id,
                 "status": "error",
                 "message": f"执行异常: {str(e)}",
                 "words": None,
