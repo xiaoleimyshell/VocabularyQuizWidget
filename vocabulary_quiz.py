@@ -62,42 +62,52 @@ class VocabularyQuizWidget(BaseWidget):
     
     class InputsSchema(BaseWidget.InputsSchema):
         operation: str = Field(
+            type="string",
             default="get_batch",
             description="操作类型：prepare（准备题目）, start_quiz（开始测验）, get_next_batch（获取下一批单词）, get_next_question（获取下一个问题）, submit_answer（提交答案）, end_quiz（结束测验）"
         )
         quiz_id: Optional[str] = Field(
+            type="string",
             default=None,
             description="考试ID，如果提供则使用之前的测验会话，否则创建新会话"
         )
-        questions: Union[str, List[Dict[str, Any]]] = Field(
+        questions: Union[str, List[Dict[str, Union[str, List[str], int]]]] = Field(
+            type="string",
             default="[]",
             description="题目列表，可直接输入JSON格式，如[{'word': '单词', 'options': ['选项1', '选项2', '选项3', '选项4'], 'correct_index': 0}, ...]"
         )
         word_list: Union[str, List[str]] = Field(
+            type="string",
             default="",
             description="单词列表，可以是逗号分隔的字符串('apple,book,computer')或字符串列表(['apple', 'book', 'computer'])"
         )
         batch_size: int = Field(
+            type="integer",
             default=15,
             description="每批返回的题目数量"
         )
         answer: Optional[Union[str, int]] = Field(
+            type="string",
             default=None,
             description="用户的答案，可以是选项序号(0-3)或选项字母(A-D)，用于submit_answer操作"
         )
         question_index: Optional[int] = Field(
+            type="integer",
             default=None,
             description="考试ID，如果提供则使用之前乱序的题目列表，否则重新乱序"
         )
         operation: str = Field(
+            type="string",
             default="get_batch",
             description="操作类型：prepare（准备阶段）, start_quiz（开始测验）, get_next_batch（获取下一批单词）, get_next_question（获取下一个问题）, submit_answer（提交答案）, end_quiz（结束测验）"
         )
         selected_index: Optional[str] = Field(
+            type="string",
             default=None,
             description="用户选择的选项，传入'选项A'、'选项B'、'选项C'或'选项D'，分别对应索引0、1、2、3"
         )
         question_index: Optional[int] = Field(
+            type="integer",
             default=None,
             description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
@@ -247,23 +257,24 @@ class VocabularyQuizWidget(BaseWidget):
             return values
     
     class OutputsSchema(BaseWidget.OutputsSchema):
-        quiz_id: str = Field(description="考试唯一标识")
-        status: str = Field(description="操作状态：success, error, batch_completed, 或考试状态：not_started, in_progress, completed")
-        message: Optional[str] = Field(description="状态消息，尤其是错误信息")
-        words: Optional[str] = Field(description="当前批次的单词，逗号分隔")
-        total_questions: Optional[int] = Field(description="总题目数")
-        answered_count: Optional[int] = Field(description="已回答题目数")
-        correct_count: Optional[int] = Field(description="正确题目数")
+        quiz_id: str = Field(type="string", description="考试唯一标识")
+        status: str = Field(type="string", description="操作状态：success, error, batch_completed, 或考试状态：not_started, in_progress, completed")
+        message: Optional[str] = Field(type="string", description="状态消息，尤其是错误信息")
+        words: Optional[str] = Field(type="string", description="当前批次的单词，逗号分隔")
+        total_questions: Optional[int] = Field(type="integer", description="总题目数")
+        answered_count: Optional[int] = Field(type="integer", description="已回答题目数")
+        correct_count: Optional[int] = Field(type="integer", description="正确题目数")
         wrong_answers: Optional[List[str]] = Field(
+            type="array", 
             description="错误回答的单词列表，每个元素是一个单词字符串"
         )
-        score_percentage: Optional[float] = Field(description="得分百分比")
-        current_batch: Optional[int] = Field(description="当前批次索引")
-        total_batches: Optional[int] = Field(description="总批次数")
-        formatted_question: Optional[str] = Field(description="格式化后的问题文本，包含单词和ABCD选项，带HTML换行符")
-        question_index: Optional[int] = Field(description="当前问题在题目列表中的索引，用于提交答案")
-        should_transition: Optional[bool] = Field(default=False, description="是否应该转换状态，为true时表示需要流转到其他状态")
-        transition_to: Optional[str] = Field(default=None, description="应该流转到的目标状态名称，可能的值：quiz_completed, get_next_batch")
+        score_percentage: Optional[float] = Field(type="number", description="得分百分比")
+        current_batch: Optional[int] = Field(type="integer", description="当前批次索引")
+        total_batches: Optional[int] = Field(type="integer", description="总批次数")
+        formatted_question: Optional[str] = Field(type="string", description="格式化后的问题文本，包含单词和ABCD选项，带HTML换行符")
+        question_index: Optional[int] = Field(type="integer", description="当前问题在题目列表中的索引，用于提交答案")
+        should_transition: Optional[bool] = Field(type="boolean", default=False, description="是否应该转换状态，为true时表示需要流转到其他状态")
+        transition_to: Optional[str] = Field(type="string", default=None, description="应该流转到的目标状态名称，可能的值：quiz_completed, get_next_batch")
         
     # 用于存储测验状态的字典，键为quiz_id
     sessions = {}
