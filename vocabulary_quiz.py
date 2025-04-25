@@ -16,7 +16,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),  # 输出到控制台
-        logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vocabulary_quiz.log'))  # 输出到文件
+        # logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vocabulary_quiz.log'))  # 注释掉文件输出
     ]
 )
 logger = logging.getLogger('VocabularyQuizWidget')
@@ -26,27 +26,33 @@ index_logger = logging.getLogger('VocabularyQuizIndex')
 index_logger.setLevel(logging.DEBUG)
 # 确保索引日志不会传播到父日志处理器
 index_logger.propagate = False
-# 添加文件处理器，专门用于记录索引相关问题
-index_log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'index_debug.log')
-index_file_handler = logging.FileHandler(index_log_file)
-index_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-index_logger.addHandler(index_file_handler)
+# 注释掉文件处理器
+# index_log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'index_debug.log')
+# index_file_handler = logging.FileHandler(index_log_file)
+# index_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+# index_logger.addHandler(index_file_handler)
 
 # 创建专门针对transition_to问题的日志记录器
 transition_logger = logging.getLogger('TransitionDebug')
 transition_logger.setLevel(logging.DEBUG)
 # 确保日志不会传播到父日志处理器
 transition_logger.propagate = False
-# 添加文件处理器
-transition_log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'transition_debug.log')
-transition_file_handler = logging.FileHandler(transition_log_file)
-transition_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-transition_logger.addHandler(transition_file_handler)
+# 注释掉文件处理器
+# transition_log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'transition_debug.log')
+# transition_file_handler = logging.FileHandler(transition_log_file)
+# transition_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+# transition_logger.addHandler(transition_file_handler)
+
+# 添加控制台处理器，以便可以在控制台查看日志（可选）
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+index_logger.addHandler(console_handler)
+transition_logger.addHandler(console_handler)
 
 # 添加一条启动日志，确认日志系统正常工作
 logger.info("============== VocabularyQuizWidget 日志系统初始化 ==============")
-index_logger.info("============== 索引问题专用日志初始化 ==============")
-transition_logger.info("============== Transition问题专用日志初始化 ==============")
+index_logger.info("============== 索引问题专用日志初始化（已关闭文件输出）==============")
+transition_logger.info("============== Transition问题专用日志初始化（已关闭文件输出）==============")
 
 @WIDGETS.register_module()
 class VocabularyQuizWidget(BaseWidget):
