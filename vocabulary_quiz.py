@@ -266,6 +266,7 @@ class VocabularyQuizWidget(BaseWidget):
         correct_count: Optional[int] = Field(type="integer", description="正确题目数")
         wrong_answers: Optional[List[str]] = Field(
             type="array", 
+            items={"type": "string"},  # 添加items属性
             description="错误回答的单词列表，每个元素是一个单词字符串"
         )
         score_percentage: Optional[float] = Field(type="number", description="得分百分比")
