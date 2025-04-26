@@ -77,6 +77,7 @@ class VocabularyQuizWidget(BaseWidget):
             description="题目列表，可直接输入JSON格式，如[{'word': '单词', 'options': ['选项1', '选项2', '选项3', '选项4'], 'correct_index': 0}, ...]"
         )
         word_list: Union[str, List[str]] = Field(
+            type="string",
             default="",
             description="单词列表，可以是逗号分隔的字符串('apple,book,computer')或字符串列表(['apple', 'book', 'computer'])"
         )
@@ -100,6 +101,15 @@ class VocabularyQuizWidget(BaseWidget):
             type="integer",
             description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
+        
+        @validator('word_list', pre=True, always=True)
+        def convert_word_list_to_string(cls, v):
+            """将列表输入转换为逗号分隔的字符串以满足类型检查"""
+            if isinstance(v, list):
+                logger.info(f"检测到 word_list 输入为列表，将其转换为逗号分隔的字符串")
+                return ",".join(map(str, v))
+            # 如果已经是字符串或其他类型，直接返回
+            return v
         
         @validator('question_index', pre=True)
         def handle_empty_string(cls, v):
