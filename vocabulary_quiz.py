@@ -77,7 +77,6 @@ class VocabularyQuizWidget(BaseWidget):
             description="题目列表，可直接输入JSON格式，如[{'word': '单词', 'options': ['选项1', '选项2', '选项3', '选项4'], 'correct_index': 0}, ...]"
         )
         word_list: Union[str, List[str]] = Field(
-            type="string",
             default="",
             description="单词列表，可以是逗号分隔的字符串('apple,book,computer')或字符串列表(['apple', 'book', 'computer'])"
         )
