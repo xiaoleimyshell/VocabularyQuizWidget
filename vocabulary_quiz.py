@@ -88,7 +88,7 @@ class VocabularyQuizWidget(BaseWidget):
         )
         answer: Union[str, int, None] = Field( # Use | None (keeping Union for int)
              default="", # Provide non-None default (validator handles conversion)
-             type="string",
+             type="string", # <--- 添加回类型约束
              description="用户的答案，可以是选项序号(0-3)或选项字母(A-D)，用于submit_answer操作"
          )
         selected_index: str | None = Field( # Use | None
@@ -101,6 +101,19 @@ class VocabularyQuizWidget(BaseWidget):
             type="integer",
             description="当前问题的索引，用于submit_answer操作（可选，系统会尝试使用会话中保存的当前问题索引）"
         )
+        
+        @validator('questions', pre=True, always=True)
+        def convert_questions_to_string(cls, v):
+            """将列表/字典输入转换为JSON字符串以满足类型检查"""
+            if isinstance(v, (list, dict)):
+                try:
+                    logger.info(f"检测到 questions 输入为 {type(v).__name__}，将其转换为 JSON 字符串")
+                    return json.dumps(v, ensure_ascii=False)
+                except TypeError as e:
+                    logger.error(f"无法将 questions 序列化为 JSON: {e}")
+                    return "[]" # 返回一个空的JSON数组字符串作为后备
+            # 如果已经是字符串或其他类型，直接返回
+            return v
         
         @validator('word_list', pre=True, always=True)
         def convert_word_list_to_string(cls, v):
@@ -121,32 +134,42 @@ class VocabularyQuizWidget(BaseWidget):
         
         @validator('answer', pre=True, check_fields=False)
         def process_answer(cls, v):
-            """处理答案，支持选项字母和数字"""
+            """处理答案，支持选项字母和数字，返回字符串形式的索引或空字符串"""
             if v is None:
-                return None
+                return "" # 返回空字符串而不是 None
                 
-            # 如果是字符串类型，并且是选项字母(A/B/C/D)，转换为数字索引
+            # 如果是字符串类型
             if isinstance(v, str):
                 # 去除空格并转为大写
-                v = v.strip().upper()
+                processed_v = v.strip().upper()
                 # 检查是否为'选项X'格式
-                if v.startswith('选项') and len(v) > 2:
-                    v = v[2:]  # 提取字母部分
+                if processed_v.startswith('选项') and len(processed_v) > 2:
+                    processed_v = processed_v[2:]  # 提取字母部分
                 
-                # 如果是A-D字母，转换为0-3的索引
-                if v in ['A', 'B', 'C', 'D']:
-                    return ord(v) - ord('A')  # A->0, B->1, C->2, D->3
+                # 如果是A-D字母，转换为字符串形式的索引
+                if processed_v in ['A', 'B', 'C', 'D']:
+                    index = ord(processed_v) - ord('A')
+                    logger.info(f"答案 '{v}' 转换为字符串索引 '{str(index)}'")
+                    return str(index)  # 返回字符串 "0", "1", "2", "3"
                     
-                # 如果是数字字符串，转换为整数
-                if v.isdigit():
-                    return int(v)
+                # 如果是数字字符串，直接返回该字符串 (确保它是有效的 0-3 范围? 可以在下游处理)
+                if processed_v.isdigit():
+                     logger.info(f"答案 '{v}' 是数字字符串，直接返回 '{processed_v}'")
+                     return processed_v # 返回原始数字字符串
+                 
+                # 如果是空字符串，返回空字符串
+                if not processed_v:
+                     logger.info(f"答案是空字符串，返回空字符串")
+                     return ""
             
-            # 如果已经是整数，直接返回
+            # 如果已经是整数，转换为字符串形式
             if isinstance(v, int):
-                return v
+                logger.info(f"答案是整数 {v}，转换为字符串 '{str(v)}'")
+                return str(v)
                 
-            # 其他情况返回原值
-            return v
+            # 其他无法处理的情况，返回空字符串
+            logger.warning(f"无法处理的答案类型 '{v}' ({type(v).__name__})，返回空字符串")
+            return ""
         
         @root_validator(pre=True)
         def handle_mode_operation_compatibility(cls, values):
@@ -334,19 +357,29 @@ class VocabularyQuizWidget(BaseWidget):
     def execute(self, environ, config):
         """执行小部件的主要入口方法"""
         try:
-            # --- Workaround for 422 error based on documentation --- 
-            # 获取字段值，这些值现在总会存在（因为有默认值）
-            raw_quiz_id = config.quiz_id
-            raw_answer = config.answer
-            raw_selected_index = config.selected_index
-            raw_question_index = config.question_index
+            # --- Step 1: Process answer --- 
+            # The validator `process_answer` now returns a string ("0", "1", etc.) or ""
+            raw_answer_str = config.answer 
+            processed_answer: Optional[int] = None
+            if isinstance(raw_answer_str, str) and raw_answer_str.isdigit():
+                try:
+                    processed_answer = int(raw_answer_str)
+                    # Optional: Add range check if needed (e.g., 0-3)
+                    # if not (0 <= processed_answer <= 3):
+                    #     logger.warning(f"Answer index '{raw_answer_str}' out of expected range 0-3")
+                    #     processed_answer = None # or handle as error
+                except ValueError:
+                    logger.warning(f"Could not convert answer string '{raw_answer_str}' to int.")
+            elif raw_answer_str == "":
+                 # Explicitly handle empty string if needed, otherwise it becomes None
+                 logger.info("Received empty string for answer.")
+            else:
+                 logger.warning(f"Unexpected answer format received after validation: {raw_answer_str}")
 
-            # 检查是否为我们设置的"伪"默认值，如果是，则视为 None
-            quiz_id = raw_quiz_id if raw_quiz_id != "" else None
-            # answer 由 validator 处理，但如果传入空字符串，也应视为 None 
-            answer = raw_answer if raw_answer != "" else None 
-            selected_index = raw_selected_index if raw_selected_index != "" else None
-            question_index = raw_question_index if raw_question_index != -1 else None
+            # --- Step 2: Process other potentially None fields --- 
+            quiz_id = config.quiz_id if config.quiz_id != "" else None
+            selected_index = config.selected_index if config.selected_index != "" else None
+            question_index = config.question_index if config.question_index != -1 else None
             
             # 获取其他字段
             operation = config.operation
@@ -355,14 +388,14 @@ class VocabularyQuizWidget(BaseWidget):
             word_list_input = config.word_list # 这个有 default=""
 
             logger.info(f"执行操作开始 - 操作类型: {operation}")
-            logger.info(f"原始输入: quiz_id='{raw_quiz_id}', answer='{raw_answer}', selected_index='{raw_selected_index}', question_index={raw_question_index}")
-            logger.info(f"处理后输入: quiz_id={quiz_id}, answer={answer}, selected_index={selected_index}, question_index={question_index}")
+            logger.info(f"原始输入: quiz_id='{config.quiz_id}', answer='{raw_answer_str}', selected_index='{config.selected_index}', question_index={config.question_index}")
+            logger.info(f"处理后输入: quiz_id={quiz_id}, answer={processed_answer}, selected_index={selected_index}, question_index={question_index}")
             logger.info(f"其他输入: batch_size={batch_size}")
 
             # 重新构建一个包含处理后值的配置对象或字典
             safe_config_dict = {
                 'quiz_id': quiz_id,
-                'answer': answer,
+                'answer': processed_answer, # Use the processed integer answer
                 'selected_index': selected_index,
                 'question_index': question_index,
                 'operation': operation,
